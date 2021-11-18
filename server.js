@@ -1,9 +1,8 @@
 const http = require('http')
-const querystring = require('querystring');
+const url = require('url')
+const querystring = require('querystring')
 
-const form = () => {
-
-    return `<form method="POST"  action="?" >
+const form = `<form method="POST"  action="?" >
                 <fieldset>
                     <legend>Cadastro Pessoal</legend>
                         <p>
@@ -28,10 +27,9 @@ const form = () => {
                 </fieldset>
             </form>`
 
-}
 
-const submittedData = (pformData) =>{
-    
+const submittedData = (pformData) => {
+
     return `<fieldset>
                 <legend>Dados Submetidos</legend>
                     <p>
@@ -54,27 +52,51 @@ const submittedData = (pformData) =>{
             </fieldset>`
 }
 
+const dataJson = JSON.stringify([{
+    "id": 1,
+    "name": "Leanne Graham",
+    "username": "Bret",
+    "email": "Sincere@april.biz"
+},
+{
+    "id": 2,
+    "name": "Ervin Howell",
+    "username": "Antonette",
+    "email": "Shanna@melissa.tv"
+},
+{
+    "id": 3,
+    "name": "Clementine Bauch",
+    "username": "Samantha",
+    "email": "Nathan@yesenia.net"
+}
+])
+
 const server = http.createServer((request, response) => {
 
-    if (request.method == 'GET') {
+    const urlparse = url.parse(request.url, true)
+
+
+    if (request.method == 'GET' && urlparse.pathname == '/users') {
+        response.writeHead(200, { 'Content-Type': 'application/json' })
+            .end(dataJson)
+    }
+    else if (request.method == 'GET') {
         response.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' })
-            .end(form())
-    } else if (request.method == 'POST') {
+            .end(form)
+    }
+    else if (request.method == 'POST') {
 
         let formData = [];
 
         request.on('data', (chunk) => {
-
-
             formData = querystring.parse(chunk.toString())
         });
 
         request.on('end', () => {
-            
             response.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' })
-                .end(form()+submittedData(formData))
+                .end(form + submittedData(formData))
         });
-
     }
 
 
